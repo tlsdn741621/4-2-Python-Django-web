@@ -1,0 +1,153 @@
+10 글과 댓글 보여주기 
+
+- 순서 
+- 1 View 함수의 이름은 post_list 를 사용 
+- 2 URL /posts/를 사용 
+- 3 템플릿은 post_list.html 사용 
+- 4 View, URL, 템플릿의 연결을 확인
+- 5 View에서 ORM을 사용해 모든 글 목록을 가져와 템플릿에 전달. 
+- 6 템플릿은 View에서 전달받은 내용을 표시. 
+
+
+- View 작성 , blog/views.py 
+from django.shortcuts import render
+
+# Create your views here.
+def post_list(request):
+    return render(request, 'post_list.html')
+
+- URLconf 작성 , config/urls.py 
+추가 
+기존 코드 
+from blog.views import post_list
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', index),
+    path('posts/', post_list)
+]
+
+
+- 템플릿 작성 templates/post_list.html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Post List</title>
+</head>
+<body>
+    <h1>Post List</h1>
+</body>
+</html>
+
+
+- View, URL, 템플릿 연결확인 
+http://127.0.0.1:8000/posts/
+
+
+- View에서 ORM을 사용해 모든 글 목록을 가져와 템플릿에 전달 
+blog/views.py 
+수정
+
+from blog.models import Post
+
+# Create your views here.
+def post_list(request):
+    posts = Post.objects.all()
+    context = {'posts': posts}
+    return render(request, 'post_list.html',context)
+
+
+- 템플릿은 View에서 전달받은 내용을 표시 
+templates/post_list.html
+
+추가 
+    <ul>
+        {% for post in posts %}
+            <li>
+                <h2>{{post.title}}</h2>
+                <p>{{post.content}}</p>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+-댓글(Comment) 목록보여주기 
+
+- Django ORM을 사용한 1:N 객체 접근 
+
+- 인터프리터에서 기능 실습 
+- python manage.py shell 
+- 접속 
+
+N -> 1 로 접근, 자식 -> 부모
+from blog.models import Post, Comment
+first_comment = Comment.objects.first()
+first_comment.post 
+
+
+- Comment는 자신의 post 속성으로 연결된 Post 객체에 접근 가능 
+- 정방향 관계 
+
+- 반대로 1 부모 방면의 객체에서 N 방면의 객체로 접근하는 것은 
+- 역방향 관계
+- 역방향 접근의 속성은 , 자동으로 생성 해줌. !!!
+- {N방향 모델명의 소문자화}_set 
+ex) comment_set 
+
+1 -> N 로 접근, 부모 -> 자식
+post = Post.objects.first()
+post.comment_set
+
+post.comment_set.all()
+
+for comment in post.comment_set.all():
+	print(comment.id, comment.content)
+
+- 템플릿에서 댓글 객체 표시하기.
+    <ul>
+        {% for post in posts %}
+            <li>
+                <h2>{{post.title}}</h2>
+                <p>{{post.content}}</p>
+				<!-- 추가-->
+                <div>{{post.comment_set.all}}</div>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+수정 1
+ <ul>
+        {% for post in posts %}
+            <li>
+                <h2>{{post.title}}</h2>
+                <p>{{post.content}}</p>
+				<!--수정-->
+                <ul>
+                    {% for comment in post.comment_set.all %}
+                        <li>{{comment.content}}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+
+수정2 댓글이 없는 경우 
+<ul>
+        {% for post in posts %}
+            <li>
+                <h2>{{post.title}}</h2>
+                <p>{{post.content}}</p>
+
+                <ul>
+                    {% for comment in post.comment_set.all %}
+                        <li>{{comment.content}}</li>
+						<!-- 추가-->
+                    {% empty %}
+                        <li>아직 댓글이 없음</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>

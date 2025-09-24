@@ -1,0 +1,95 @@
+9 장 
+1:N 관계 모델 구현 
+
+- 새 app 생성, settings 에 등록 
+- python manage.py startapp blog
+
+- config/settings.py
+- 34라인
+추가 -> "blog"
+INSTALLED_APPS = [
+ "blog",
+
+짧은 문자열에서 사용하고, 길이제한 옵션이 필수이고, 
+인덱싱이 잘되고, 검색등 사용에 효율적이다.
+title = models.CharField("포스트 제목",max_length=100)
+길이 제한 옵션이 없다. 다소 검색등 성능이 떨어질수도 있음. 
+content = models.TextField("포스트 내용")
+차이점
+
+
+- models.py 에 모델 추가 
+- blog/models.py 	
+내용 
+from django.db import models
+
+# Create your models here.
+class Post(models.Model):
+    title = models.CharField("포스트 제목",max_length=100)
+    content = models.TextField("포스트 내용")
+    
+    def __str__(self):
+        return self.title
+    
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    content = models.TextField("댓글 내용")
+
+    def __str__(self):
+        return f"{self.post.title}의 댓글 (ID: {self.id})"
+
+
+- makemigrations, migrate로 테이블 생성 
+
+- 데이터베이스 변경사항 생성
+- python manage.py makemigrations
+
+- 생성되어 있는 데이터베이스 변경사항 적용
+- python manage.py migrate
+
+
+- 글과 댓글 admin 구현 
+- Post admin 구성 
+
+- blog/admin.py 
+추가
+from django.contrib import admin
+from blog.models import Post
+
+# Register your models here.
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    pass
+
+- Superuser 생성 
+- python manage.py createsuperuser
+- Username: root
+- Email: root@admin.com 
+- Password : 1234
+
+- 개발서버 실행, admin에 글 생성 
+- python manage.py runserver 
+http://127.0.0.1:8000/admin/login/?next=/admin/
+접속후, 샘플 3개 작성.
+
+샘플 글 , 제목, 내용 
+	Git을 이용한 협업 워크플로우
+	pyenv와 virtualenv를 사용한 파이썬 개발환경 구성
+	Poetry를 사용한 파이썬 패키지 관리
+
+- Comment admin 구성 
+- blog/admin.py 
+
+추가 
+from blog.models import Post, Comment
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    pass
+	
+- Comment admin에서 post 항목확인 
+post 부분이 셀렉트 박스 형식으로 되어 있음. 
+샘플 댓글 달기.
+
+Poetry를 사용한 파이썬 패키지 관리 의 댓글1
+Poetry를 사용한 파이썬 패키지 관리 의 댓글2
