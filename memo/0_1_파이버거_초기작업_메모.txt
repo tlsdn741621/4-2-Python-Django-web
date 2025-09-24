@@ -1,0 +1,91 @@
+ 1 파이참에서 기본 장고 프로젝트를 실행 하면, 5버전 설치가 안되어서, 일단, 버전 4로 맞추기 
+ pip install 'django < 5'    
+ 
+ 2 경고가 떠서 , 업그레이드 진행. 
+ python.exe -m pip install --upgrade pip
+ 
+ 3 버전 확인, 
+ django-admin --version 
+ 
+ 4 파이참으로 장고를 설치시 이미 설치가 진행이 됨. 
+  django-admin startproject config . 
+  
+ 5 작업할 폴더 지정. : burgers
+ python manage.py startapp burgers 
+ 
+ 6 실행시, 마이그레이트 안된 부분 , 진행 해달라고 콘솔에 요청이 있어서, 진행함.
+ python manage.py migrate 
+ 
+ 7
+ burgers/models.py  엔티티 클래스 추가 하기. 들여쓰기 주의!!
+ from django.db import models
+
+# Create your models here.
+class Burger(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.IntegerField(default=0)
+    calories = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
+
+ 8 엔티티 클래스, 데이터베이스에 반영, 테이블 만들기. 
+  python manage.py makemigrations burgers
+  
+ 9 
+ 파이참에, sqlite3, 파일기반의 데이터베이스 연결, 
+ 1) db.sqlite3 , 더블 클릭. 
+ 2) 오른쪽 , 데이터베이스 연결 설정에서, 추가. 
+ 3) 드라이버 설치, 
+ 4) 연결 테스트 , 설정. 
+ 
+ 10 버거 테이블 반영. 
+ python manage.py migrate burgers 
+ 
+ 11 관리자 계정 등록
+ python manage.py createsuperuser 
+ 
+ 12 서버 실행. 
+ python manage.py runserver  
+ 
+ 13 관리자 페이지 접근. 
+ http://127.0.0.1:8000/admin
+ 
+ 14 로그인. 각자 만든 관리자 계정으로 로그인,
+ 버거의 샘플 디비 생성. 
+ 
+ 15 엔티티 클래스에서, __str__ 정의해서, 버거 이름으로 출력하기. 
+ 
+ 16 shell 환경에서, orm 데이터베이스 crud 테스트
+ python manage.py shell
+
+ 17 DB , 버거 조회
+ from burgers.models import Burger
+ Burger.objects.all()
+
+ 18 DB, 버거 하나 조회
+ Burger.objects.get(name="더블와퍼")
+
+ 19 DB, 객체의 속성 알아보기.
+ burger = Burger.objects.get(name="더블와퍼")
+ burger.id
+ burger.name
+ burger.price
+ burger.calories
+
+ 20 DB, 특정 조건을 만족하는 버거 정보 가져오기.
+ __endswith: 특정 문자열로 끝나는 데이터를 찾습니다. (SQL의 LIKE '%문자열')
+
+ __startswith: 특정 문자열로 시작하는 데이터를 찾습니다. (SQL의 LIKE '문자열%')
+
+ __contains: 특정 문자열을 포함하는 데이터를 찾습니다. (SQL의 LIKE '%문자열%')
+ 만약 대소문자를 구분하지 않고 검색하고 싶다면
+ 앞에 i를 붙여 __iendswith, __istartswith, __icontains 등을 사용할 수 있습니다.
+
+ burgers = Burger.objects.filter(name__endswith="와퍼")
+ burgers
+
+ 21 반복문으로 출력
+  len(burgers)
+  for burger in burgers:
+    print(burger.id, burger.name, burger.price, burger.calories, type(burger))
