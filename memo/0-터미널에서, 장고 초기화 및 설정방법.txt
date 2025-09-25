@@ -1,0 +1,33 @@
+장고을 터미널에서, 프로젝트 생성 및 초기화 해보기. 
+ 
+1 작업 할 폴더 생성 및 지정. 
+mkdir myproject
+cd myproject
+
+2 가상 환경 생성
+python -m venv [가상환경이름]
+python -m venv myvenv
+
+3 가상 환경 활성화 , 시작 명령어, 윈도우즈 기준.
+myvenv\Scripts\activate 
+예)맥, source venv/bin/activate
+
+4 장고 설치 
+pip install 'django < 5' 
+
+5 설치 된 장고 버전 확인. 
+django-admin --version
+
+
+6 Django 프로젝트 생성. -> 폴더 구조를 생성 해줌. 템플릿, 초기 설정 파일등. 
+django-admin startproject config .
+
+7 데이터베이스 초기화(마이그레이션), sqlite3, 파일 기반 경량 RDBMS를 사용함.
+python manage.py migrate
+
+8 개발 서버 실행. 
+python manage.py runserver
+
+
+
+

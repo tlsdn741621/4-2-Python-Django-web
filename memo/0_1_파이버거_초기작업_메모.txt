@@ -29,33 +29,51 @@ class Burger(models.Model):
     def __str__(self):
         return self.name
 
- 8 엔티티 클래스, 데이터베이스에 반영, 테이블 만들기. 
+ 8-0
+ config/settings.py , 앱 이름 등록하기.
+ INSTALLED_APPS = [
+    'burgers',
+	...
+
+ 8 엔티티 클래스, 데이터베이스에 반영, 테이블 만들기.
   python manage.py makemigrations burgers
-  
- 9 
- 파이참에, sqlite3, 파일기반의 데이터베이스 연결, 
- 1) db.sqlite3 , 더블 클릭. 
- 2) 오른쪽 , 데이터베이스 연결 설정에서, 추가. 
- 3) 드라이버 설치, 
- 4) 연결 테스트 , 설정. 
- 
- 10 버거 테이블 반영. 
- python manage.py migrate burgers 
- 
+
+
+ 9
+ 파이참에, sqlite3, 파일기반의 데이터베이스 연결,
+ 1) db.sqlite3 , 더블 클릭.
+ 2) 오른쪽 , 데이터베이스 연결 설정에서, 추가.
+ 3) 드라이버 설치,
+ 4) 연결 테스트 , 설정.
+
+ 10 버거 테이블 반영.
+ python manage.py migrate burgers
+
  11 관리자 계정 등록
- python manage.py createsuperuser 
- 
- 12 서버 실행. 
- python manage.py runserver  
- 
- 13 관리자 페이지 접근. 
+ python manage.py createsuperuser
+
+ 12 서버 실행.
+ python manage.py runserver
+
+ 13 관리자 페이지 접근.
  http://127.0.0.1:8000/admin
- 
+
+ 13-2, 관리자 설정 파일에,
+ 엔티티 클래스 등록, 관리자 페이지에서, 해당 도메인 ,crud 가능
+ burgers/admin.py
+ from burgers.models import Burger
+
+
+# Register your models here.
+@admin.register(Burger)
+class BurgerAdmin(admin.ModelAdmin):
+    pass
+
  14 로그인. 각자 만든 관리자 계정으로 로그인,
- 버거의 샘플 디비 생성. 
- 
- 15 엔티티 클래스에서, __str__ 정의해서, 버거 이름으로 출력하기. 
- 
+ 버거의 샘플 디비 생성.
+
+ 15 엔티티 클래스에서, __str__ 정의해서, 버거 이름으로 출력하기.
+
  16 shell 환경에서, orm 데이터베이스 crud 테스트
  python manage.py shell
 
@@ -89,3 +107,127 @@ class Burger(models.Model):
   len(burgers)
   for burger in burgers:
     print(burger.id, burger.name, burger.price, burger.calories, type(burger))
+
+==========================================================================
+ 22 화면 연결 작업 .
+ config/settings.py
+
+ #1) 추가, 화면 연결용, 화면 설정 폴더를 추가하기.
+TEMPLATE_DIR = BASE_DIR / 'templates'
+
+ #2) 'DIRS': [BASE_DIR / 'templates'], 연결하기.
+ TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+		...
+
+  23 views 작업, 컨트롤러 역할. 함수 추가.
+  burgers/views.py
+
+from burgers.models import Burger
+
+
+def main(request):
+    # return HttpResponse("Hello, world. 파이버거~~")
+    return render(request, 'main.html')
+
+def burger_list(request):
+    # return HttpResponse("파이버거의 햄버거 목록입니다.~~~")
+    burgers = Burger.objects.all()
+    print("전체 햄버거 목록:", burgers)
+    context = {'burgers': burgers}
+    return render(request, 'burger_list.html', context)
+
+  24 url 라우팅 작업,
+  config/urls.py , 추가
+  urlpatterns = [
+  #관리자
+    path('admin/', admin.site.urls),
+	# 메인, 리스트
+    path('',main),
+    path('burgers/',burger_list)
+
+]
+====위의 내용은 , pyburger2 작업함=================================================
+원래 pyburger에서 작업합니다.
+pyburger/views.py 에 추가
+
+ 25 버거 검색, 뷰 작업
+
+ def burger_search(request):
+   return render(request, "burger_search.html")
+
+ 26 버거 검색 화면 html 작성.
+ templates/burger_search.html
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>버거 검색 화면</title>
+</head>
+<body>
+    <h1>파이버거 검색 화면입니다.</h1>
+</body>
+</html>
+
+ 27 라우팅 등록하기.
+ pyburger/urls.py
+
+ urlpatterns = [
+    ...
+	 path('search/',burger_search)
+
+ 28 서버 실행 ,
+ python manage.py runserver
+
+ http://127.0.0.1:8000/search/
+
+
+ 29 뷰에서, 화면에서, 검색어 받기
+
+
+ 30 받은 검색어로 디비에서 검색 하기.
+
+ 31 검색된 데이터를 화면에 전달하기.
+
+ def burger_search(request):
+    # 1. 화면에서 , 검색어 받아와서,
+    # 2. 디비에서 검색하고,
+    # 3. 검색 결과를 화면에 전달하고,
+    # search/?keyword=더블
+    keyword = request.GET.get("keyword")
+    print("keyword:", keyword)
+    # 디비에서 조회
+    burgers = Burger.objects.filter(name__contains=keyword)
+    print("검색 결과: ", burgers)
+    # 조회된 결과 데이터를 화면에 전달하기.
+    context = {'burgers': burgers}
+    return render(request, "burger_search.html",context)
+
+  32 화면에서, 데이터 받아서, 출력 하기.
+  burger_search.html
+  <body>
+    <h1>파이버거 검색 화면입니다.</h1>
+    <div>{{ burgers }}</div>
+
+
+  33 keyword 유효성 체크, 널체크
+
+   keyword = request.GET.get("keyword")
+    # 유효성 체크
+    if keyword is not None:
+        burgers = Burger.objects.filter(name__icontains=keyword)
+        # 디비에서 조회
+        print("검색 결과: ", burgers)
+    else:
+        burgers = Burger.objects.none()
+
+  34 검색 화면 추가 및 확인
+  <div>
+    <form method="GET">
+        <input type="text" name="keyword">
+        <button>검색</button>
+    </form>
+</div>

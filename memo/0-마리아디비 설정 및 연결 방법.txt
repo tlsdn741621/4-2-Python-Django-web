@@ -1,0 +1,64 @@
+마리아디비 드라이버 설치 및 연결 
+
+1 MariaDB 드라이버 설치
+pip install mysqlclient
+
+2 MariaDB, 데이터베이스 및 계정 확인
+데이터베이스 생성 
+예)CREATE DATABASE myprojectdb CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+사용자 생성 및 권한 부여 
+예)
+-- 'myuser'라는 사용자를 만들고 비밀번호를 'password'로 설정합니다.
+CREATE USER 'myuser'@'localhost' IDENTIFIED BY 'password';
+
+-- 'myuser'에게 'myprojectdb' 데이터베이스에 대한 모든 권한을 부여합니다.
+GRANT ALL PRIVILEGES ON myprojectdb.* TO 'myuser'@'localhost';
+
+-- 변경된 권한을 시스템에 바로 적용합니다.
+FLUSH PRIVILEGES;
+
+-- MariaDB에서 나옵니다.
+EXIT;
+
+편의상, 나중에 변경 가능. 
+webdb, webuser/webuser 
+
+
+3 
+Django settings.py 파일 수정
+
+# config/settings.py
+
+...
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'webdb',      # 2단계에서 생성한 데이터베이스 이름
+        'USER': 'webuser',           # 2단계에서 생성한 사용자 이름 (root를 사용해도 무방)
+        'PASSWORD': 'webuser',     # 해당 사용자의 비밀번호
+        'HOST': '127.0.0.1',        # 또는 'localhost'
+        'PORT': '3306',             # MariaDB 기본 포트
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        },
+    }
+}
+
+...
+
+4 연결 확인 및 마이그레이션
+python manage.py migrate
+
+5 서버 실행. 
+python manage.py runserver
+
+
+
+
+
+
+
+
+
