@@ -1,25 +1,41 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>post_list</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
+<div id="navbar">
     <h1>post_list 화면입니다.</h1>
-    <ul>
+    <a href="/posts/add/" class="btn btn-primary">글 작성</a>
+</div>
+<div id="post-list">
+    <ul class="posts">
         {% for post in posts %}
-            <li>
-                <h2>{{post.title}}</h2>
-                <p>{{post.content}}</p>
-                <ul>
+            <li class="post">
+                <div>
+                    <h1><a href="/posts/{{ post.id }}">{{ post.title }}</a></h1>
+                </div>
+{#                <div>{{ post.title }}</div>#}
+                <p>{{ post.content }}</p>
+                <ul class="comments">
                     {% for comment in post.comment_set.all %}
-                        <li>{{comment.content}}</li>
-                        {% empty %}
-                        <li>아직 댓글이 없음</li>
+                        <li class="comment">{{ comment.content }}</li>
+                    {% empty %}
+                        <li class="comment-empty">아직 댓글이 없음</li>
                     {% endfor %}
                 </ul>
+                {#            첨부 이미지 확인#}
+                {% if post.thumbnail %}
+                    <img src="{{ post.thumbnail.url }}" alt="">
+                {% else %}
+                    <img src="" alt="">
+                {% endif %}
             </li>
         {% endfor %}
     </ul>
+</div>
 </body>
 </html>

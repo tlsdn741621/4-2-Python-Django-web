@@ -117,3 +117,4 @@ templates/post_list.html
 -인덱스 페이지 , 목록 페이지 연결 
 templates/index.html
 
+ctrl + alt + l

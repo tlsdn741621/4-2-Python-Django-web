@@ -9,6 +9,8 @@ pylog , pycharm 프로젝트
 
 - 프로젝트 구조 생성
 - django-admin startproject config .
+===========파이참 프로로 새 프로젝트 생성시 여기까지 진행됨.=====================
+config 폴더 -> pylog  변경됨.
 
 - TEMPLATES_DIR 설정 
 - config/settings.py 
